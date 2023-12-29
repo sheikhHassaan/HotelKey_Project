@@ -3,11 +3,10 @@ package org.example;
 import java.sql.*;
 
 public class MySQLConnection{
-    public static Connection loadConnection(String dataBase){
+    public static Connection loadConnection(String dataBase) throws ClassNotFoundException, SQLException {
 
-        try{
             // Loading the JDBC Driver class (Optional)
-//            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
 
             // Declaring the URL, User, Password strings to pass while establishing the connection.
             String url = "jdbc:mysql://localhost:3306/"+dataBase;
@@ -16,21 +15,16 @@ public class MySQLConnection{
 
             // Establishing the connection to MySQL database
             Connection connection = DriverManager.getConnection(url, user, password);
-
-            if (connection != null){
+            // TODO: IF the connection is not found then return SQLException or ConnectionNotFoundException and don't return null. Then handle that exception in the function where that function is being called.
+            if (connection == null){
                 System.out.println("Connection established successfully!");
                 return connection;
             }
             else {
                 System.out.println("Failed to connect!");
-                return null;
+                return connection;
             }
 
-        }
-        catch (SQLException e){
-            System.out.println(e.getMessage());
-            return null;
-        }
 //        catch (ClassNotFoundException e){
 //            System.out.println(e.getMessage());
 //            return null;

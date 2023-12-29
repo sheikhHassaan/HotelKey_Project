@@ -10,14 +10,17 @@ import java.util.List;
 import static org.example.MySQLConnection.loadConnection;
 
 public class CRUD{
-    public static ResultSet runSelect(Connection connection, String selectQuery){
+    public static ResultSet runSelect(Connection connection, String selectQuery) throws SQLException{
 
+        Statement statement;
+        ResultSet execute;
         try {
             // Statement object allows executing statements on the connected database. This object is made using the connection object.
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
+//            statement.set TODO: Explore this statement class that contains functions of setting values to the insert query.
 
             // ResultSet object holds the result that comes from the query execution. Query is executed using the statement object.
-            ResultSet execute = statement.executeQuery(selectQuery);
+            execute = statement.executeQuery(selectQuery);
 
             // execute.next() returns true when there exists next record, and returns false after the last record.
             while (execute.next()) {
@@ -28,15 +31,18 @@ public class CRUD{
                 System.out.println();
             }
 
+            //TODO: Result set and statement to be closed in finally.
+            //TODO: ResultSet to be set in Employee object and return the Employee object.
+
+
             return execute;
-        } catch (SQLException e){
-            System.out.println(e.getMessage());
-            return null;
+        } finally {
+
         }
     }
 
-    public static int runInsert(Connection connection, String insertQuery){
-
+    public static int runInsert(Connection connection, String insertQuery){ //TODO: Take employee object.
+//TODO: Create separate connection in every function.
         try {
             Statement statement = connection.createStatement();
             System.out.println("Insert executed.");
@@ -97,7 +103,7 @@ public class CRUD{
         return null;
     }
 
-    public static Employee getEmployeeById(int employeeId){
+    public static Employee getEmployeeById(int employeeId) throws ClassNotFoundException{
         try{
             Employee employee = new Employee();
             Connection connection = loadConnection("HotelKey");

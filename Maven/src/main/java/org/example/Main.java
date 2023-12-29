@@ -7,9 +7,12 @@ import static org.example.CRUD.*;
 public class Main
 {
     public static void main(String[] args) throws SQLException {
-        Connection connection = MySQLConnection.loadConnection("HotelKey");
+        Connection connection = null;
         try {
+
+            connection = MySQLConnection.loadConnection("HotelKey");
             String selectQuery = "SELECT * FROM HotelKey.Employees";
+            //TODO: Create a function that retrieves the values from employee object and populates the data in DB.
             String insertQuery = "INSERT INTO HotelKey.Employees (EmpId, EmpName, EmpAge, EmpDept) VALUES (10, 'Bon Jovie', 30, 'Sales');";
             String updateQuery = "UPDATE HotelKey.Employees SET EmpName = \"Muhammad Hassaan\", EmpAge = 24, EmpDept = \"IT\" WHERE EmpId = 3;";
             String deleteQuery = "DELETE FROM HotelKey.Employees WHERE EmpId = 10;";
@@ -26,19 +29,14 @@ public class Main
 
             // Printing all the Employees.
             System.out.println("All Employees: -\n"+listEmployees());
-
-
+        }
+        catch (ClassNotFoundException | SQLException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        } finally {
             // Closing the connection.
-            connection.close();
-        }
-        catch (NullPointerException e){
-            System.out.println(e.getMessage());
-        }
-        catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        finally {
-            connection.close();
+            if (connection != null && !connection.isClosed())
+                    connection.close();
         }
     }
 }
