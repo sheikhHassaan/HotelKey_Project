@@ -2,17 +2,17 @@ package org.example;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class EmployeeServiceImpl implements EmployeeService {
 
-    public boolean isExist(int empId) throws SQLException {
+    public boolean isExist(int empId) throws SQLException, ConnectionNotFoundException {
+        HikariConnection hikariConnection = new HikariConnection();
         Connection connection = null;
         ResultSet resultSet = null;
         try {
             String query = "SELECT COUNT(*) AS COUNT FROM HOTELKEY.EMPLOYEES WHERE EMPID = ?;";
             int count;
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, empId);
             resultSet = preparedStatement.executeQuery();
@@ -20,18 +20,25 @@ public class EmployeeServiceImpl implements EmployeeService {
             count = resultSet.getInt(1);
             return count > 0;
         } finally {
-            connection.close();
-            resultSet.close();
+//            connection.close();
+//            resultSet.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
+            if (resultSet != null && !resultSet.isClosed()){
+                resultSet.close();
+            }
         }
     }
 
-    public boolean isExist(String empName) throws SQLException {
+    public boolean isExist(String empName) throws SQLException, ConnectionNotFoundException {
+        HikariConnection hikariConnection = new HikariConnection();
         Connection connection = null;
         ResultSet resultSet = null;
         try {
             String query = "SELECT COUNT(*) AS COUNT FROM HOTELKEY.EMPLOYEES WHERE EMPNAME = ?;";
             int count;
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, empName);
             resultSet = preparedStatement.executeQuery();
@@ -39,24 +46,31 @@ public class EmployeeServiceImpl implements EmployeeService {
             count = resultSet.getInt(1);
             return count > 0;
         } finally {
-            connection.close();
-            resultSet.close();
+//            connection.close();
+//            resultSet.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
+            if (resultSet != null && !resultSet.isClosed()){
+                resultSet.close();
+            }
         }
     }
 
     @Override
-    public boolean addEmployee(Employee employee) throws SQLException {
+    public boolean addEmployee(Employee employee) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(employee.getEmpId())){
             System.out.println("A record with same the Employee ID already exists.");
             return false;
         }
 
+        HikariConnection hikariConnection = new HikariConnection();
         Connection connection = null;
         try{
             String query = "INSERT INTO HOTELKEY.EMPLOYEES (EMPID, EMPNAME, EMPAGE, EMPDEPT) VALUES (?,?,?,?);";
 
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setInt(1, employee.getEmpId());
@@ -68,25 +82,28 @@ public class EmployeeServiceImpl implements EmployeeService {
             return true;
 
         } finally {
-            connection.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
         }
     }
 
     @Override
-    public int updateEmployee(Employee employee) throws SQLException {
+    public int updateEmployee(Employee employee) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(employee.getEmpId())){
             System.out.println("The record you want to update doesn't exist.");
             return -1;
         }
 
+        HikariConnection hikariConnection = new HikariConnection();
         Connection connection = null;
         int rowsUpdated;
         try {
 
             String query = "UPDATE HOTELKEY.EMPLOYEES SET EMPNAME = ?, EMPAGE = ?, EMPDEPT = ? WHERE EMPID = ?;";
 
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setInt(1, employee.getEmpId());
@@ -98,25 +115,28 @@ public class EmployeeServiceImpl implements EmployeeService {
             return rowsUpdated;
 
         } finally {
-            connection.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
         }
     }
 
     @Override
-    public int deleteEmployee(int empId) throws SQLException {
+    public int deleteEmployee(int empId) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(empId)){
             System.out.println("The record you want to delete doesn't exist.");
             return -1;
         }
 
+        HikariConnection hikariConnection = new HikariConnection();
         Connection connection = null;
         int rowsUpdated;
         try {
 
             String query = "DELETE FROM HOTELKEY.EMPLOYEES WHERE EMPID = ?;";
 
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
 
             preparedStatement.setInt(1, empId);
@@ -125,26 +145,29 @@ public class EmployeeServiceImpl implements EmployeeService {
             return rowsUpdated;
 
         } finally {
-            connection.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
         }
     }
 
     @Override
-    public List<Employee> getEmployee(int empId) throws SQLException{
+    public ArrayList<Employee> getEmployee(int empId) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(empId)){
             System.out.println("The record you want to get doesn't exist.");
             return null;
         }
 
-        List<Employee> employees = new ArrayList<>();
+        HikariConnection hikariConnection = new HikariConnection();
+        ArrayList<Employee> employees = new ArrayList<>();
         Employee employee;
         ResultSet resultSet;
         Connection connection = null;
         try{
 
             String query = "SELECT * FROM HOTELKEY.EMPLOYEES WHERE EMPID = ?;";
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, empId);
@@ -162,26 +185,29 @@ public class EmployeeServiceImpl implements EmployeeService {
             }
             return employees;
         } finally {
-            connection.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
         }
     }
 
     @Override
-    public List<Employee> getEmployee(String empName) throws SQLException{
+    public ArrayList<Employee> getEmployee(String empName) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(empName)){
             System.out.println("The record you want to get doesn't exist.");
             return null;
         }
 
-        List<Employee> employees = new ArrayList<>();
+        HikariConnection hikariConnection = new HikariConnection();
+        ArrayList<Employee> employees = new ArrayList<>();
         Employee employee;
         ResultSet resultSet;
         Connection connection = null;
         try{
 
             String query = "SELECT * FROM HOTELKEY.EMPLOYEES WHERE EMPNAME = ?;";
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/HotelKey", "root", "Helloworld");
+            connection = hikariConnection.getPooledConnection();
 
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, empName);
@@ -197,11 +223,13 @@ public class EmployeeServiceImpl implements EmployeeService {
 
                 employees.add(employee);
             }
-            if (employees.size() == 0)
+            if (employees.isEmpty())
                 System.out.println("No matching records found!");
             return employees;
         } finally {
-            connection.close();
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
         }
     }
 }

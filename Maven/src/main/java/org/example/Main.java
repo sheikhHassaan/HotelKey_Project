@@ -2,7 +2,7 @@ package org.example;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import static org.example.CRUD.*;
+import java.util.ArrayList;
 
 public class Main
 {
@@ -11,30 +11,35 @@ public class Main
         try {
 
             connection = MySQLConnection.loadConnection("HotelKey");
-            String selectQuery = "SELECT * FROM HotelKey.Employees";
-            //TODO: Create a function that retrieves the values from employee object and populates the data in DB.
-            String insertQuery = "INSERT INTO HotelKey.Employees (EmpId, EmpName, EmpAge, EmpDept) VALUES (10, 'Bon Jovie', 30, 'Sales');";
-            String updateQuery = "UPDATE HotelKey.Employees SET EmpName = \"Muhammad Hassaan\", EmpAge = 24, EmpDept = \"IT\" WHERE EmpId = 3;";
-            String deleteQuery = "DELETE FROM HotelKey.Employees WHERE EmpId = 10;";
+            EmployeeServiceImpl service = new EmployeeServiceImpl();
 
+            ArrayList<Employee> employee1 = service.getEmployee(1);                                     // SELECT
+            ArrayList<Employee> employee2 = service.getEmployee("Muhammad Hassaan");                 // SELECT
 
-            System.out.println("Return Set of Select: "+runSelect(connection, selectQuery)); // Running Select query.
-            System.out.println("----------------------------------");
-            System.out.println("Insert rows effected: "+runInsert(connection, insertQuery)); // Running Insert query.
-            System.out.println("Update rows effected: "+runUpdate(connection, updateQuery)); // Running Update query.
-            System.out.println("Delete rows effected: "+runDelete(connection, deleteQuery)); // Running Delete query.
+            System.out.println("Employee 1: "+employee1);
+            System.out.println("Employee 2: "+employee2);
 
-            // Printing Employee with a particular id ('7').
-            System.out.println("EmployeeId '7' : "+getEmployeeById(7));
+            Employee messi = new Employee(11, "Messi", 34, "Sports");
+            Employee ronaldo = new Employee(11, "Ronaldo", 36, "Sports");
 
-            // Printing all the Employees.
-            System.out.println("All Employees: -\n"+listEmployees());
+            boolean isAddedSuccessfully = service.addEmployee(messi);                                          // INSERT
+            System.out.println("isAddedSuccessfully: "+isAddedSuccessfully);
+
+            int recordsUpdated = service.updateEmployee(ronaldo);                                              // UPDATE
+            System.out.println(recordsUpdated);
+
+            int recordsDeleted = service.deleteEmployee(11);                                            // DELETE
+            System.out.println(recordsDeleted);
+
         }
-        catch (ClassNotFoundException | SQLException e) {
+        catch (ClassNotFoundException | SQLException | ConnectionNotFoundException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
-        } finally {
-            // Closing the connection.
+        }
+        catch (Exception e){
+            System.out.println("Unknown exception occured. "+e.getMessage());
+        }
+        finally {
             if (connection != null && !connection.isClosed())
                     connection.close();
         }

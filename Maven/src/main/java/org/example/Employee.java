@@ -6,6 +6,17 @@ public class Employee {
     int age;
     String dept;
 
+    public Employee() {
+
+    }
+
+    public Employee(int empId, String name, int age, String dept) {
+        this.empId = empId;
+        this.name = name;
+        this.age = age;
+        this.dept = dept;
+    }
+
     public int getEmpId() {
         return empId;
     }

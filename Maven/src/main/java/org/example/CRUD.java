@@ -14,35 +14,26 @@ public class CRUD{
 
         Statement statement;
         ResultSet execute;
-        try {
-            // Statement object allows executing statements on the connected database. This object is made using the connection object.
-            statement = connection.createStatement();
-//            statement.set TODO: Explore this statement class that contains functions of setting values to the insert query.
 
-            // ResultSet object holds the result that comes from the query execution. Query is executed using the statement object.
-            execute = statement.executeQuery(selectQuery);
+        // Statement object allows executing statements on the connected database. This object is made using the connection object.
+        statement = connection.createStatement();
 
-            // execute.next() returns true when there exists next record, and returns false after the last record.
-            while (execute.next()) {
-                System.out.print(execute.getInt("EMPID") + " ");
-                System.out.print(execute.getString("EmpNaMe") + " ");
-                System.out.print(execute.getInt("EmpAgE") + " ");
-                System.out.print(execute.getString("EmPdEpT"));
-                System.out.println();
-            }
+        // ResultSet object holds the result that comes from the query execution. Query is executed using the statement object.
+        execute = statement.executeQuery(selectQuery);
 
-            //TODO: Result set and statement to be closed in finally.
-            //TODO: ResultSet to be set in Employee object and return the Employee object.
-
-
-            return execute;
-        } finally {
-
+        // execute.next() returns true when there exists next record, and returns false after the last record.
+        while (execute.next()) {
+            System.out.print(execute.getInt("EMPID") + " ");
+            System.out.print(execute.getString("EmpNaMe") + " ");
+            System.out.print(execute.getInt("EmpAgE") + " ");
+            System.out.print(execute.getString("EmPdEpT"));
+            System.out.println();
         }
+
+        return execute;
     }
 
-    public static int runInsert(Connection connection, String insertQuery){ //TODO: Take employee object.
-//TODO: Create separate connection in every function.
+    public static int runInsert(Connection connection, String insertQuery){
         try {
             Statement statement = connection.createStatement();
             System.out.println("Insert executed.");
@@ -75,15 +66,18 @@ public class CRUD{
         return -1;
     }
 
-    public static List<Employee> listEmployees(){
+    public static List<Employee> listEmployees() throws SQLException, ConnectionNotFoundException, ClassNotFoundException{
+        Connection connection = null;
+        Statement statement = null;
+        ResultSet result = null;
         try {
             List<Employee> employees = new ArrayList<>();
-            Connection connection = loadConnection("HotelKey");
-            Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM EMPLOYEES;");
+            connection = loadConnection("HotelKey");
+            statement = connection.createStatement();
+            result = statement.executeQuery("SELECT * FROM EMPLOYEES;");
 
-            Employee employee = new Employee();
-            while (result.next()){
+            Employee employee;
+            while (result.next()) {
                 employee = new Employee();
 
                 employee.setEmpId(result.getInt(1));
@@ -97,18 +91,27 @@ public class CRUD{
             System.out.println("listEmployees executed.");
             return employees;
         }
-        catch (Exception e){
-            System.out.println(e.getMessage());
+        finally {
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
+            if (result != null && !result.isClosed()){
+                result.close();
+            }
+            if (statement != null && !statement.isClosed()){
+                statement.close();
+            }
         }
-        return null;
     }
 
-    public static Employee getEmployeeById(int employeeId) throws ClassNotFoundException{
+    public static Employee getEmployeeById(int employeeId) throws SQLException, ConnectionNotFoundException, ClassNotFoundException{
+        Connection connection= null;
+        ResultSet result = null;
         try{
             Employee employee = new Employee();
-            Connection connection = loadConnection("HotelKey");
+            connection = loadConnection("HotelKey");
             Statement statement = connection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM HotelKey.EMPLOYEES WHERE EMPID = "+employeeId+';');
+            result = statement.executeQuery("SELECT * FROM HotelKey.EMPLOYEES WHERE EMPID = "+employeeId+';');
 
             while(result.next()){
                 employee.setEmpId(result.getInt(1));
@@ -119,10 +122,14 @@ public class CRUD{
             System.out.println("getEmployeeById executed.");
             return employee;
         }
-        catch (SQLException e){
-            System.out.println(e.getMessage());
+        finally {
+            if (connection != null && !connection.isClosed()){
+                connection.close();
+            }
+            if (result != null && !result.isClosed()){
+                result.close();
+            }
         }
-        return null;
     }
 
 }

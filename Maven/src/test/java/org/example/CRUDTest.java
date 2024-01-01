@@ -27,7 +27,7 @@ public class CRUDTest extends TestCase {
         assertEquals(result, runSelect(testConnection, "SELECT * FROM HotelKey.Employees;"));
     }
     @Test
-    public void testRunInsert() throws ClassNotFoundException, SQLException{
+    public void testRunInsert() throws ClassNotFoundException, SQLException, ConnectionNotFoundException {
 
         Connection connection  = loadConnection("HotelKey");
         assertEquals(1, runInsert(connection, "INSERT INTO HotelKey.Employees (EmpId, EmpName, EmpAge, EmpDept) VALUES (11, 'Chris Rock', 36, 'Entertainment');"));

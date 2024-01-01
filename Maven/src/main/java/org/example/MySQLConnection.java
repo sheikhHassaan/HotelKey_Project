@@ -3,7 +3,10 @@ package org.example;
 import java.sql.*;
 
 public class MySQLConnection{
-    public static Connection loadConnection(String dataBase) throws ClassNotFoundException, SQLException {
+    public static Connection loadConnection(String dataBase) throws ClassNotFoundException, ConnectionNotFoundException, SQLException {
+
+        // TODO: IF the connection is not found then return SQLException or ConnectionNotFoundException and don't return null.
+        //  Then handle that exception in the function where that function is being called.
 
             // Loading the JDBC Driver class (Optional)
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -15,20 +18,13 @@ public class MySQLConnection{
 
             // Establishing the connection to MySQL database
             Connection connection = DriverManager.getConnection(url, user, password);
-            // TODO: IF the connection is not found then return SQLException or ConnectionNotFoundException and don't return null. Then handle that exception in the function where that function is being called.
-            if (connection == null){
-                System.out.println("Connection established successfully!");
-                return connection;
-            }
-            else {
-                System.out.println("Failed to connect!");
-                return connection;
-            }
 
-//        catch (ClassNotFoundException e){
-//            System.out.println(e.getMessage());
-//            return null;
-//        }
+
+            if (connection == null){
+                throw new ConnectionNotFoundException();
+            }
+        System.out.println("Connection established successfully!");
+        return connection;
     }
 
     public static void close(Connection connection){
