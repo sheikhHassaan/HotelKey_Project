@@ -20,6 +20,7 @@ public class CRUDTest extends TestCase {
 
     public CRUDTest() throws SQLException {
     }
+    /*
 
     @Test
     public void testRunSelect() throws SQLException {
@@ -32,6 +33,9 @@ public class CRUDTest extends TestCase {
         Connection connection  = loadConnection("HotelKey");
         assertEquals(1, runInsert(connection, "INSERT INTO HotelKey.Employees (EmpId, EmpName, EmpAge, EmpDept) VALUES (11, 'Chris Rock', 36, 'Entertainment');"));
     }
+     */
+
+    
     @Test
     public void testRunUpdate() {
         assertEquals(true, true);

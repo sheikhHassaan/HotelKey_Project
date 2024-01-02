@@ -5,20 +5,34 @@ import java.util.ArrayList;
 
 public class EmployeeServiceImpl implements EmployeeService {
 
+    HikariConnection hikariConnection;
+    Connection connection;
+
+    public EmployeeServiceImpl(){
+        connection = null;
+        if (hikariConnection == null){
+            hikariConnection = new HikariConnection();
+
+        }
+    }
+
     public boolean isExist(int empId) throws SQLException, ConnectionNotFoundException {
-        HikariConnection hikariConnection = new HikariConnection();
-        Connection connection = null;
+
         ResultSet resultSet = null;
         try {
             String query = "SELECT COUNT(*) AS COUNT FROM HOTELKEY.EMPLOYEES WHERE EMPID = ?;";
-            int count;
+//            int count = 0;
+            boolean existsFlag = false;
             connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, empId);
             resultSet = preparedStatement.executeQuery();
 
-            count = resultSet.getInt(1);
-            return count > 0;
+            if (resultSet.next()){
+//                count = resultSet.getInt(1);
+                existsFlag = true;
+            }
+            return existsFlag;
         } finally {
 //            connection.close();
 //            resultSet.close();
@@ -32,8 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     public boolean isExist(String empName) throws SQLException, ConnectionNotFoundException {
-        HikariConnection hikariConnection = new HikariConnection();
-        Connection connection = null;
+
         ResultSet resultSet = null;
         try {
             String query = "SELECT COUNT(*) AS COUNT FROM HOTELKEY.EMPLOYEES WHERE EMPNAME = ?;";
@@ -43,6 +56,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             preparedStatement.setString(1, empName);
             resultSet = preparedStatement.executeQuery();
 
+            resultSet.next();
             count = resultSet.getInt(1);
             return count > 0;
         } finally {
@@ -61,12 +75,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     public boolean addEmployee(Employee employee) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(employee.getEmpId())){
-            System.out.println("A record with same the Employee ID already exists.");
+            System.out.println("A record with same the Employee ID"+employee.getEmpId()+" already exists.");
             return false;
         }
 
-        HikariConnection hikariConnection = new HikariConnection();
-        Connection connection = null;
         try{
             String query = "INSERT INTO HOTELKEY.EMPLOYEES (EMPID, EMPNAME, EMPAGE, EMPDEPT) VALUES (?,?,?,?);";
 
@@ -92,12 +104,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     public int updateEmployee(Employee employee) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(employee.getEmpId())){
-            System.out.println("The record you want to update doesn't exist.");
+            System.out.println("The record you want to update("+employee.getEmpId()+") doesn't exist.");
             return -1;
         }
 
-        HikariConnection hikariConnection = new HikariConnection();
-        Connection connection = null;
         int rowsUpdated;
         try {
 
@@ -106,10 +116,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             connection = hikariConnection.getPooledConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
 
-            preparedStatement.setInt(1, employee.getEmpId());
-            preparedStatement.setString(2, employee.getName());
-            preparedStatement.setInt(3, employee.getAge());
-            preparedStatement.setString(4, employee.getDept());
+            preparedStatement.setString(1, employee.getName());
+            preparedStatement.setInt(2, employee.getAge());
+            preparedStatement.setString(3, employee.getDept());
+            preparedStatement.setInt(4, employee.getEmpId());
 
             rowsUpdated = preparedStatement.executeUpdate();
             return rowsUpdated;
@@ -125,12 +135,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     public int deleteEmployee(int empId) throws SQLException, ConnectionNotFoundException {
 
         if (!isExist(empId)){
-            System.out.println("The record you want to delete doesn't exist.");
+            System.out.println("The record you want to delete("+empId+") doesn't exist.");
             return -1;
         }
 
-        HikariConnection hikariConnection = new HikariConnection();
-        Connection connection = null;
         int rowsUpdated;
         try {
 
@@ -154,16 +162,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public ArrayList<Employee> getEmployee(int empId) throws SQLException, ConnectionNotFoundException {
 
+        // TODO: Remove this check.
         if (!isExist(empId)){
             System.out.println("The record you want to get doesn't exist.");
             return null;
         }
 
-        HikariConnection hikariConnection = new HikariConnection();
-        ArrayList<Employee> employees = new ArrayList<>();
         Employee employee;
         ResultSet resultSet;
-        Connection connection = null;
+        ArrayList<Employee> employees = new ArrayList<>();
+
         try{
 
             String query = "SELECT * FROM HOTELKEY.EMPLOYEES WHERE EMPID = ?;";
@@ -194,16 +202,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public ArrayList<Employee> getEmployee(String empName) throws SQLException, ConnectionNotFoundException {
 
+        // TODO: Remove this check.
         if (!isExist(empName)){
             System.out.println("The record you want to get doesn't exist.");
             return null;
         }
 
-        HikariConnection hikariConnection = new HikariConnection();
-        ArrayList<Employee> employees = new ArrayList<>();
         Employee employee;
         ResultSet resultSet;
-        Connection connection = null;
+        ArrayList<Employee> employees = new ArrayList<>();
+
         try{
 
             String query = "SELECT * FROM HOTELKEY.EMPLOYEES WHERE EMPNAME = ?;";
